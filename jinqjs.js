@@ -166,12 +166,20 @@ var jinqJs = function (settings) {
             includeIdentity: jinqJs.settings.includeIdentity || false
         };
     }
+    
+    //convert strings to number for sum, average, min, max to avoid error of 'string number' ex: var d = [{age: '25', name 'Miller'}]
+    var toNumber = function (param) {
+        param = parseFloat(param);
+        if (isNaN(param)) param = 0;
+        return param;
+        //shorten it if you want
+    }
 
     /* Private Methods (no prefix) */
     var isEmpty = function (array) {
-            return (typeof array === 'undefined' ||
-            array.length === 0);
-        },
+        return (typeof array === 'undefined' ||
+        array.length === 0);
+    },
 
         isArray = function (array) {
             return (hasProperty(array, 'length') && !isString(array) && !isFunction(array));
@@ -190,7 +198,7 @@ var jinqJs = function (settings) {
         },
 
         isFunction = function (func) {
-            return (typeof func === 'function'); 
+            return (typeof func === 'function');
         },
 
         isNumber = function (value) {
@@ -312,58 +320,58 @@ var jinqJs = function (settings) {
                 isNumField = (field !== null && !isNaN(field) ? true : false);
 
                 result.sort(function (first, second) {
-                        var lValueIsLess = false;
-                        var lValueIsGreater = false;
-                        var lValue = null;
-                        var rValue = null;
+                    var lValueIsLess = false;
+                    var lValueIsGreater = false;
+                    var lValue = null;
+                    var rValue = null;
 
 
-                        if (isNumField) {
-                            firstField = Object.keys(first)[field];
-                            secondField = Object.keys(second)[field];
+                    if (isNumField) {
+                        firstField = Object.keys(first)[field];
+                        secondField = Object.keys(second)[field];
 
-                            if (prior !== null) {
-                                priorFirstField = Object.keys(first)[prior.field];
-                                priorSecondField = Object.keys(second)[prior.field];
-                            }
+                        if (prior !== null) {
+                            priorFirstField = Object.keys(first)[prior.field];
+                            priorSecondField = Object.keys(second)[prior.field];
                         }
-                        else {
-                            firstField = secondField = field;
-
-                            if (prior !== null)
-                                priorFirstField = priorSecondField = prior.field;
-                        }
-
-                        lValue = (field === null ? first : (isNaN(first[firstField]) ? first[firstField] : Number(first[firstField])));
-                        rValue = (field === null ? second : (isNaN(second[secondField]) ? second[secondField] : Number(second[secondField])));
-
-                        if (isString(lValue) && isString(rValue)){
-                            var localeComparison = lValue.localeCompare(rValue);
-
-                            switch(localeComparison){
-                                case -1:
-                                    lValueIsLess = true;
-                                    break;
-
-                                case 1:
-                                    lValueIsGreater = true;
-                                    break;
-                            }
-                        }
-                        else {
-                           lValueIsLess = lValue < rValue; 
-                           lValueIsGreater = lValue > rValue;
-                        }
-
-
-                        if (lValueIsLess && (prior === null || (field === null || first[priorFirstField] == second[priorSecondField])))
-                            return -1 * order;
-
-                        if (lValueIsGreater && (prior === null || (field === null || first[priorFirstField] == second[priorSecondField])))
-                            return 1 * order;
-
-                        return 0;
                     }
+                    else {
+                        firstField = secondField = field;
+
+                        if (prior !== null)
+                            priorFirstField = priorSecondField = prior.field;
+                    }
+
+                    lValue = (field === null ? first : (isNaN(first[firstField]) ? first[firstField] : Number(first[firstField])));
+                    rValue = (field === null ? second : (isNaN(second[secondField]) ? second[secondField] : Number(second[secondField])));
+
+                    if (isString(lValue) && isString(rValue)) {
+                        var localeComparison = lValue.localeCompare(rValue);
+
+                        switch (localeComparison) {
+                            case -1:
+                                lValueIsLess = true;
+                                break;
+
+                            case 1:
+                                lValueIsGreater = true;
+                                break;
+                        }
+                    }
+                    else {
+                        lValueIsLess = lValue < rValue;
+                        lValueIsGreater = lValue > rValue;
+                    }
+
+
+                    if (lValueIsLess && (prior === null || (field === null || first[priorFirstField] == second[priorSecondField])))
+                        return -1 * order;
+
+                    if (lValueIsGreater && (prior === null || (field === null || first[priorFirstField] == second[priorSecondField])))
+                        return 1 * order;
+
+                    return 0;
+                }
                 );
             }
         },
@@ -474,7 +482,7 @@ var jinqJs = function (settings) {
             return array;
         },
 
-        isNode = function() {
+        isNode = function () {
             return (typeof module !== 'undefined' && typeof module.exports !== 'undefined');
         },
 
@@ -517,9 +525,9 @@ var jinqJs = function (settings) {
                     if (isFunction(comparers[0])) {
                         matches = [];
                         collections[index].forEach(function (item) {
-                                if (comparers[0](lItem, item))
-                                    matches.push(item);
-                            }
+                            if (comparers[0](lItem, item))
+                                matches.push(item);
+                        }
                         );
 
                         //This condition is used to handle left joins with a predicate
@@ -577,14 +585,14 @@ var jinqJs = function (settings) {
             }
         },
 
-        nodeServiceCall = function(self, url, callback){
+        nodeServiceCall = function (self, url, callback) {
             var http = require("http");
 
-            http.get(url, function(response){
-               var content = '';
+            http.get(url, function (response) {
+                var content = '';
 
-                response.on('data', function(data){ content += data; });
-                response.on('end', function() {
+                response.on('data', function (data) { content += data; });
+                response.on('end', function () {
                     var data = JSON.parse(content);
                     var collection = null;
 
@@ -602,7 +610,7 @@ var jinqJs = function (settings) {
             });
         },
 
-        browserServiceCall = function(self, url, callback){
+        browserServiceCall = function (self, url, callback) {
             var xmlhttp = new XMLHttpRequest();
             var collection = null;
 
@@ -641,104 +649,104 @@ var jinqJs = function (settings) {
                 collections.push(collection);
             }
         },
-        
-        getExpressions = function(args){
-          var regExpr = /([^\s]+)\s(<|>|!=|!==|=|==|===|<=|>=|\*)\s(.+)/;
-          var argLen = args.length;
-          var expr = new Array(argLen);
-          
-          for (var eIndex = 0; eIndex < argLen; eIndex++) {
-              var matches = args[eIndex].match(regExpr);
 
-              if (matches.length !== 4)
-                  throw ('Invalid expression!');
+        getExpressions = function (args) {
+            var regExpr = /([^\s]+)\s(<|>|!=|!==|=|==|===|<=|>=|\*)\s(.+)/;
+            var argLen = args.length;
+            var expr = new Array(argLen);
 
-              expr[eIndex] = {
-                  lField: matches[1],
-                  operator: convertToOperatorEnum(matches[2]),
-                  rValue: matches[3]
-              };
-          }
-          
-          return expr;
+            for (var eIndex = 0; eIndex < argLen; eIndex++) {
+                var matches = args[eIndex].match(regExpr);
+
+                if (matches.length !== 4)
+                    throw ('Invalid expression!');
+
+                expr[eIndex] = {
+                    lField: matches[1],
+                    operator: convertToOperatorEnum(matches[2]),
+                    rValue: matches[3]
+                };
+            }
+
+            return expr;
         },
-        
-        isTruthy = function(row, expr){
-          switch (expr.operator) {
-            case operators.EqualEqualType:
-                return (row[expr.lField] === expr.rValue);
 
-            case operators.NotEqualEqualType:
-                return (row[expr.lField] !== expr.rValue);
+        isTruthy = function (row, expr) {
+            switch (expr.operator) {
+                case operators.EqualEqualType:
+                    return (row[expr.lField] === expr.rValue);
 
-            case operators.LessThen:
-                return (row[expr.lField] < expr.rValue);
+                case operators.NotEqualEqualType:
+                    return (row[expr.lField] !== expr.rValue);
 
-            case operators.GreaterThen:
-                return (row[expr.lField] > expr.rValue);
+                case operators.LessThen:
+                    return (row[expr.lField] < expr.rValue);
 
-            case operators.NotEqual:
-                return (row[expr.lField] != expr.rValue);
+                case operators.GreaterThen:
+                    return (row[expr.lField] > expr.rValue);
 
-            case operators.Equal:
-                return (row[expr.lField] == expr.rValue);
+                case operators.NotEqual:
+                    return (row[expr.lField] != expr.rValue);
 
-            case operators.LessThenEqual:
-                return (row[expr.lField] <= expr.rValue);
+                case operators.Equal:
+                    return (row[expr.lField] == expr.rValue);
 
-            case operators.GreaterThenEqual:
-                return (row[expr.lField] >= expr.rValue);
+                case operators.LessThenEqual:
+                    return (row[expr.lField] <= expr.rValue);
 
-            case operators.Contains:
-                return (row[expr.lField].indexOf(expr.rValue) > -1);
+                case operators.GreaterThenEqual:
+                    return (row[expr.lField] >= expr.rValue);
 
-            default:
-                return false;
-          }
+                case operators.Contains:
+                    return (row[expr.lField].indexOf(expr.rValue) > -1);
+
+                default:
+                    return false;
+            }
         };
 
     /* Exposed Methods (prefixed with _) */
     var _from = function () {
-            var collection = null;
-            var callback = null;
+        var collection = null;
+        var callback = null;
 
 
-            if (arguments.length === 0) return this;
+        if (arguments.length === 0) return this;
 
-            result = [];
-            for (var index = 0; index < arguments.length; index++) {
-                if (arguments[index] === null || arguments[index].length === 0)
+        result = [];
+        for (var index = 0; index < arguments.length; index++) {
+            if (arguments[index] === null || arguments[index].length === 0)
+                continue;
+
+            if (arguments.length == 2 && isFunction(arguments[1])) {
+                collection = arguments[0];
+                callback = arguments[1];
+                index = arguments.length;
+            }
+            else {
+                collection = arguments[index];
+
+                //Check for a callback function we dont support asyn callbacks with multiple tables
+                if (isFunction(collection))
                     continue;
-
-                if (arguments.length == 2 && isFunction(arguments[1])) {
-                    collection = arguments[0];
-                    callback = arguments[1];
-                    index = arguments.length;
-                }
-                else {
-                    collection = arguments[index];
-
-                    //Check for a callback function we dont support asyn callbacks with multiple tables
-                    if (isFunction(collection))
-                        continue;
-                }
-
-                if (isString(collection)) {
-                    if (!isNode())
-                        browserServiceCall(this, collection, callback);
-                    else
-                        nodeServiceCall(this, collection, callback);
-                }
-                else {
-                    collections.push(collection);
-                }
             }
 
-            collections.func = 'from';
-            result = flattenCollection(collections);
+            if (isString(collection)) {
+                if (!isNode())
+                    browserServiceCall(this, collection, callback);
+                else
+                    nodeServiceCall(this, collection, callback);
+            }
+            else {
+                collections.push(collection);
+            }
+        }
 
-            return (isFunction(callback) ? callback : this);
-        },
+        collections.func = 'from';
+        result = flattenCollection(collections);
+
+        return (isFunction(callback) ? callback : this);
+    },
 
         _select = function () {
             var fields = null;
@@ -816,7 +824,7 @@ var jinqJs = function (settings) {
                             else
                                 obj[dstFieldName] = fields[field].value;
                         } else {
-                            obj[dstFieldName] = (isSimple ? result[index] : (result[index][srcFieldName] === 0 ? 0 : result[index][srcFieldName] || null) );
+                            obj[dstFieldName] = (isSimple ? result[index] : (result[index][srcFieldName] === 0 ? 0 : result[index][srcFieldName] || null));
                         }
                     }
 
@@ -827,91 +835,91 @@ var jinqJs = function (settings) {
             return collection;
         },
 
-        _update = function(predicate) {
-          if (deleteFlag)
-            throw ('A pending delete operation exists!');
-          
-          if (typeof predicate === 'undefined' || !isFunction(predicate))
+        _update = function (predicate) {
+            if (deleteFlag)
+                throw ('A pending delete operation exists!');
+
+            if (typeof predicate === 'undefined' || !isFunction(predicate))
+                return this;
+
+            delegateUpdate = predicate;
+
             return this;
-
-          delegateUpdate = predicate;
-
-          return this;     
         },
-        
-        _delete = function() {
-          if (delegateUpdate !== null)
-            throw ('A pending update operation exists!');
-          
-          deleteFlag = true;
-          
-          return this;
-        },
-        
-        _at = function() {
-          var resLen = result.length;
-          var expr = null;
-          var isPredicateFunc = false;
-          var isTruthfull = false;
-          var argLen = arguments.length;
-          
-          
-          if ( (delegateUpdate === null && !deleteFlag) || resLen === 0)
+
+        _delete = function () {
+            if (delegateUpdate !== null)
+                throw ('A pending update operation exists!');
+
+            deleteFlag = true;
+
             return this;
+        },
 
-          //Check if this is just clearing all data
-          if (deleteFlag && argLen === 0) {
-            result = [];
-            collections = [];
+        _at = function () {
+            var resLen = result.length;
+            var expr = null;
+            var isPredicateFunc = false;
+            var isTruthfull = false;
+            var argLen = arguments.length;
+
+
+            if ((delegateUpdate === null && !deleteFlag) || resLen === 0)
+                return this;
+
+            //Check if this is just clearing all data
+            if (deleteFlag && argLen === 0) {
+                result = [];
+                collections = [];
+
+                delegateUpdate = null;
+                deleteFlag = false;
+
+                return this;
+            }
+
+            if (argLen > 0) {
+                isPredicateFunc = isFunction(arguments[0]);
+                if (!isPredicateFunc) {
+                    expr = getExpressions(arguments);
+                }
+            }
+
+            for (var index = resLen - 1; index > -1; index--) {
+                if (isPredicateFunc) {
+                    if (arguments[0](result, index)) {
+                        if (deleteFlag)
+                            result.splice(index, 1);
+                        else
+                            delegateUpdate(result, index);
+                    }
+                }
+                else if (argLen === 0) {
+                    if (deleteFlag)
+                        result.splice(index, 1);
+                    else
+                        delegateUpdate(result, index);
+                } else {
+                    for (var arg = 0; arg < argLen; arg++) {
+                        isTruthfull = isTruthy(result[index], expr[arg]);
+
+                        if (!isTruthfull)
+                            break;
+                    }
+
+                    if (isTruthfull) {
+                        if (deleteFlag)
+                            result.splice(index, 1);
+                        else
+                            delegateUpdate(result, index);
+                    }
+                }
+            }
 
             delegateUpdate = null;
             deleteFlag = false;
-          
+
             return this;
-          }
-          
-          if (argLen > 0){
-            isPredicateFunc = isFunction(arguments[0]);
-            if (!isPredicateFunc) {
-                expr = getExpressions(arguments);
-            } 
-          }
-            
-          for (var index = resLen-1; index > -1; index--) {
-            if (isPredicateFunc) {
-              if (arguments[0](result, index)) {
-                if (deleteFlag)
-                  result.splice(index,1);
-                else
-                  delegateUpdate(result, index); 
-              }
-            }
-            else if (argLen === 0) {
-              if (deleteFlag)
-                result.splice(index,1);
-              else
-                delegateUpdate(result, index); 
-            } else {
-              for (var arg = 0; arg < argLen; arg++) {
-                  isTruthfull = isTruthy(result[index], expr[arg]);
-
-                  if (!isTruthfull)
-                      break;
-              }
-
-              if (isTruthfull) {
-                  if (deleteFlag)
-                    result.splice(index,1);
-                  else
-                    delegateUpdate(result, index); 
-              }
-            }
-          }       
-            
-          delegateUpdate = null;
-          deleteFlag = false;
-          
-          return this;
         },
 
         _concat = function () {
@@ -1056,7 +1064,7 @@ var jinqJs = function (settings) {
             return this;
         },
 
-        _sum = function () {
+        _sum = function () { //a
             var sum = {};
 
             if (groups.length === 0) {
@@ -1073,7 +1081,7 @@ var jinqJs = function (settings) {
                     if (!hasProperty(sum, key))
                         sum[key] = 0;
 
-                    return sum[key] += rValue;
+                    return sum[key] += toNumber(rValue);
                 });
             }
 
@@ -1098,7 +1106,7 @@ var jinqJs = function (settings) {
                         avg[key] = { count: 0, sum: 0 };
 
                     avg[key].count++;
-                    avg[key].sum += rValue;
+                    avg[key].sum += toNumber(rValue);
 
                     return avg[key].sum / avg[key].count;
                 });
@@ -1136,6 +1144,8 @@ var jinqJs = function (settings) {
                 result = [minValue];
             } else {
                 result = aggregator(arguments, function (lValue, rValue, keys) {
+                    lValue = toNumber(lValue);
+                    rValue = toNumber(rValue);
                     var key = JSON.stringify(keys);
                     if (!hasProperty(minValue, key))
                         minValue[key] = 0;
@@ -1164,6 +1174,8 @@ var jinqJs = function (settings) {
                 result = [maxValue];
             } else {
                 result = aggregator(arguments, function (lValue, rValue, keys) {
+                    lValue = toNumber(lValue);
+                    rValue = toNumber(rValue);
                     var key = JSON.stringify(keys);
                     if (!hasProperty(maxValue, key))
                         maxValue[key] = 0;
@@ -1387,24 +1399,24 @@ var jinqJs = function (settings) {
     this.filter = _where;
     this.at = _at;
     this.delete = _delete;
-    this._x = function(name, args, plugin){
+    this._x = function (name, args, plugin) {
         storage[name] = storage[name] || {};
         return plugin.call(this, result, args, storage[name]);
     };
 };
 
-(function() {
+(function () {
     'use strict';
 
-    jinqJs.addPlugin = function(name, plugin) {
-        jinqJs.prototype[name] = function() {return this._x(name, arguments, plugin);};
+    jinqJs.addPlugin = function (name, plugin) {
+        jinqJs.prototype[name] = function () { return this._x(name, arguments, plugin); };
     };
 
     //node.js
     if (typeof module !== 'undefined' && typeof module.exports !== 'undefined')
         module.exports = jinqJs;
 
-    if (typeof angular !== 'undefined'){
-        angular.module('angular-jinqjs', []).service('$jinqJs', function() {return new jinqJs(); });
+    if (typeof angular !== 'undefined') {
+        angular.module('angular-jinqjs', []).service('$jinqJs', function () { return new jinqJs(); });
     }
 })();
